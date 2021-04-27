@@ -14,12 +14,44 @@
 
 
 <div class="container-fluid mt-3" id="app">
-    <input type="text" class="form-control" v-model="criterioDeBusqueda"
-        placeholder="Ingresar un criterio de busqueda...">
+    <form>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon3">General</span>
+            <input type="text" class="form-control" v-model="criterioDeBusqueda"
+                placeholder="Ingresar un criterio de busqueda...">
+            <span class="badge bg-danger" v-if="!comprobar(criterioDeBusqueda)">Minimo 3 caracteres</span>
+        </div>        
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon3">Nombre</span>
+            <input type="text" class="form-control" v-model="criterioNombre"
+                placeholder="Ingresar nombre...">
+            <span class="badge bg-danger" v-if="!comprobar(criterioNombre)">Minimo 3 caracteres</span>
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon3">Dni</span>
+            <input type="text" class="form-control" v-model="criterioDni"
+                placeholder="Ingresar dni..." :state = "comprobar">
+            <span class="badge bg-danger" v-if="!comprobar(criterioDni)">Minimo 3 caracteres</span>
+        </div>
+    </form>
     <br>
-    <div class="card-deck m-0">
+
+    <div class="card-deck m-0" v-if="estaEnUso">
         <div class="row">
             <div class="col" v-for="persona in personasFiltradas">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{getNombreCompleto(persona)}}</h5>
+                        <p class="card-text">dni {{persona.dni}}</p>
+                        <a href="#" class="card-link">{{persona.correo}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-deck m-0" v-else="!estaEnUso">
+        <div class="row">
+            <div class="col" v-for="persona in filtradoNombreDni">
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">{{getNombreCompleto(persona)}}</h5>
@@ -40,6 +72,8 @@
         el: '#app',
         data: {
             criterioDeBusqueda: '',
+            criterioNombre: '',
+            criterioDni: '',
             //Aquí, en este array es donde tienen que agregar su información
             personas: [
                 {
@@ -338,12 +372,29 @@
                     let registroCompleto = `${persona.nombre} ${persona.apellido} ${persona.dni} ${persona.correo}`
                     return registroCompleto.toLowerCase().includes(this.criterioDeBusqueda.toLowerCase())
                 });
+            },
+
+            filtradoNombreDni() {
+            const { nombre, apellido, dni, correo } = this
+            return this.personas
+                .filter(persona => persona.nombre.toLowerCase().includes(this.criterioNombre.toLowerCase()))
+                .filter(persona => persona.dni.toLowerCase().includes(this.criterioDni.toLowerCase()))
+            },
+
+            estaEnUso(){
+                return this.criterioDeBusqueda.length > 0? true: false;
             }
+            
         },
         methods: {
             getNombreCompleto(persona) {
                 return `${persona.nombre} ${persona.apellido}`
+            },
+            comprobar(criterio){
+                return criterio.length > 3? true:false;
             }
+
+            
         }
     });
 </script>
